@@ -1,0 +1,39 @@
+name: Sky ROM Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git wget curl bc bison build-essential ccache clang flex g++ gcc libc6-dev libssl-dev make python3 zip unzip
+
+      - name: Install repo tool
+        run: |
+          mkdir -p ~/bin
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod +x ~/bin/repo
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Setup git identity
+        run: |
+          git config --global user.name "mohdsahil-coders"
+          git config --global user.email "mohdsahil923523@gmail.com"
+
+      - name: Create workspace
+        run: mkdir -p $GITHUB_WORKSPACE/rom
+
+      - name: Initialize repo
+        run: |
+          cd $GITHUB_WORKSPACE/rom
+          repo init -u https://github.com/LineageOS/android.git -b lineage-23.0
+
+      - name: Sync source (safe)
+        run: |
+          cd $GITHUB_WORKSPACE/rom
+          repo sync -c -j2 --force-sync --no-clone-bundle --no-tags
